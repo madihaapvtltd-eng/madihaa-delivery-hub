@@ -1,9 +1,10 @@
-const CACHE_NAME = 'madihaa-hub-v2';
+const CACHE_NAME = 'madihaa-hub-v3';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
-  '/favicon.svg',
+  '/madihaa_delivery_hub.svg',
+  '/Madihaa Delivery Hub Logo.png',
 ];
 
 self.addEventListener('install', event => {

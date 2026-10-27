@@ -2,16 +2,28 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
-import { Building2, Lock, Mail } from 'lucide-react';
+import { Lock, Mail } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [passcode, setPasscode] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const { login, setUserDirectly } = useAuth();
   const { users, addUser } = useData();
   const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
+
+  useEffect(() => {
+    // Load saved credentials
+    const savedEmail = localStorage.getItem('savedEmail');
+    const savedPasscode = localStorage.getItem('savedPasscode');
+    if (savedEmail && savedPasscode) {
+      setEmail(savedEmail);
+      setPasscode(savedPasscode);
+      setRememberMe(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (users.length === 0) {
@@ -44,6 +56,14 @@ export function LoginPage() {
     } else {
       const success = await login(email, passcode);
       if (success) {
+        // Save credentials if remember me is checked
+        if (rememberMe) {
+          localStorage.setItem('savedEmail', email);
+          localStorage.setItem('savedPasscode', passcode);
+        } else {
+          localStorage.removeItem('savedEmail');
+          localStorage.removeItem('savedPasscode');
+        }
         navigate('/');
       } else {
         setError('Login failed. Please check your credentials.');
@@ -56,7 +76,7 @@ export function LoginPage() {
       <div className="max-w-md w-full">
         <div className="bg-white rounded-2xl shadow-xl p-8">
           <div className="flex items-center justify-center mb-8">
-            <Building2 className="w-12 h-12 text-blue-600" />
+            <img src="/madihaa_delivery_hub.svg" alt="Madihaa Delivery Hub" className="w-20 h-20" />
           </div>
           <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
             Madihaa Delivery Hub
@@ -104,6 +124,19 @@ export function LoginPage() {
                   placeholder="1234"
                 />
               </div>
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="remember"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              />
+              <label htmlFor="remember" className="ml-2 text-sm text-gray-700">
+                Remember me
+              </label>
             </div>
 
             {error && (

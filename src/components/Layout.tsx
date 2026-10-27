@@ -71,14 +71,12 @@ export function Layout({ children }: LayoutProps) {
       >
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="flex items-center justify-between px-6 py-4 border-b">
-            <div className="flex items-center space-x-2">
-              <Building2 className="w-8 h-8 text-blue-600" />
-              <span className="text-lg font-bold text-gray-900">Madihaa Hub</span>
-            </div>
+          <div className="flex flex-col items-center justify-center px-6 py-6 border-b">
+            <img src="/madihaa_delivery_hub.svg" alt="Madihaa Hub" className="w-16 h-16 mb-2" />
+            <span className="text-lg font-bold text-gray-900">Madihaa Hub</span>
             <button
               onClick={() => setSidebarOpen(false)}
-              className="lg:hidden text-gray-500 hover:text-gray-700"
+              className="lg:hidden absolute right-6 top-6 text-gray-500 hover:text-gray-700"
             >
               <X className="w-6 h-6" />
             </button>

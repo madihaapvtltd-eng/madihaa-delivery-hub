@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+  <title>Madihaa Delivery Hub</title>
+  <desc>Square vector logo with green palm tree, MADIHAA wordmark, DELIVERY HUB lettering, and delivery truck.</desc>
+  <rect width="1000" height="1000" fill="#ffffff"/>
+  <g fill="#27ad3b" stroke="#27ad3b" stroke-linejoin="round">
+    <path d="M168 365 Q110 345 82 310 Q129 320 157 335 Q112 292 108 265 Q149 285 177 319 Q151 269 164 235 Q190 273 199 313 Q208 260 235 226 Q246 275 230 320 Q268 282 310 274 Q292 312 246 337 Q293 321 335 337 Q302 363 249 363 Q292 377 312 405 Q266 402 226 379 Q248 416 243 444 Q212 418 201 382 Q185 419 159 435 Q158 394 180 365 Z"/>
+    <path d="M197 363 C205 448 186 523 148 584 C122 625 92 654 83 692 L115 692 C122 651 151 624 177 587 C221 525 232 443 217 363 Z" stroke="none"/>
+    <path d="M111 684 Q78 675 53 649 Q82 655 104 674 Q89 648 90 625 Q112 649 120 672 L139 681 Z" stroke="none"/>
+  </g>
+  <text x="300" y="535" font-family="Georgia, 'Times New Roman', serif" font-size="112" letter-spacing="13" fill="#303238">MADIHAA</text>
+  <g fill="#009b43">
+    <path d="M300 594 H365 Q375 594 375 604 Q375 614 365 614 H300 Z"/>
+    <path d="M280 625 H365 Q375 625 375 635 Q375 645 365 645 H280 Z"/>
+    <path d="M310 656 H365 Q375 656 375 666 Q375 676 365 676 H310 Z"/>
+  </g>
+  <text x="390" y="668" font-family="Arial, Helvetica, sans-serif" font-size="59" font-weight="800" font-style="italic" fill="#009b43">DELIVERY HUB</text>
+  <g transform="translate(775 580)">
+    <rect x="0" y="0" width="105" height="82" rx="7" fill="#009b43"/>
+    <path d="M105 25 H142 L171 52 V82 H105 Z" fill="#009b43"/>
+    <path d="M116 35 H138 L155 52 H116 Z" fill="#ffffff"/>
+    <circle cx="35" cy="86" r="20" fill="#303238"/><circle cx="35" cy="86" r="9" fill="#ffffff"/>
+    <circle cx="135" cy="86" r="20" fill="#303238"/><circle cx="135" cy="86" r="9" fill="#ffffff"/>
+  </g>
+  <path d="M45 710 Q510 704 955 710" fill="none" stroke="#27ad3b" stroke-width="7" stroke-linecap="round"/>
+</svg>
