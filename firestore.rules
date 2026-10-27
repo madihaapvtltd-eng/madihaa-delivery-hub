@@ -1,0 +1,105 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function hasRole(role) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
+    }
+    
+    function hasShopAccess(shopId) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permittedShopIds.has(shopId);
+    }
+    
+    function isSuperAdmin() {
+      return hasRole('super_admin');
+    }
+    
+    // Users collection - read/write for authenticated users (development mode)
+    match /users/{userId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Shops collection - read/write for authenticated users (development mode)
+    match /shops/{shopId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Vehicles collection - read/write for authenticated users (development mode)
+    match /vehicles/{vehicleId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Drivers collection - read/write for authenticated users (development mode)
+    match /drivers/{driverId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Staff collection - read/write for authenticated users (development mode)
+    match /staff/{staffId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Boats collection
+    match /boats/{boatId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin() || hasRole('loading_dispatch');
+    }
+    
+    // Islands collection
+    match /islands/{islandId} {
+      allow read: if isAuthenticated();
+      allow write: if isSuperAdmin();
+    }
+    
+    // Deliveries - role-based access (development mode)
+    match /deliveries/{deliveryId} {
+      allow read, write: if isAuthenticated();
+    }
+    
+    // Delivery Trips
+    match /trips/{tripId} {
+      allow read, write: if isAuthenticated();
+    }
+
+    match /deliveryTrips/{tripId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
+      allow update: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Boat Departure Batches
+    match /boatDepartureBatches/{batchId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
+      allow update: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
+      allow delete: if isSuperAdmin();
+    }
+    
+    // Delivery Events - audit log
+    match /deliveryEvents/{eventId} {
+      allow read: if isAuthenticated() && isSuperAdmin();
+      allow create: if isAuthenticated(); // System creates events
+      allow update, delete: if false; // Events are immutable
+    }
+    
+    // Attachments
+    match /attachments/{attachmentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow delete: if isSuperAdmin() || request.auth.uid == resource.data.uploadedBy;
+    }
+    
+    // Audit Logs
+    match /auditLogs/{logId} {
+      allow read: if isSuperAdmin();
+      allow create: if false; // System creates logs
+      allow update, delete: if false; // Logs are immutable
+    }
+  }
+}
