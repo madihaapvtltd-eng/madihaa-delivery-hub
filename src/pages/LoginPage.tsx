@@ -74,14 +74,14 @@ export function LoginPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          <div className="flex items-center justify-center mb-8">
-            <img src="/madihaa_delivery_hub.svg" alt="Madihaa Delivery Hub" className="w-20 h-20" />
+        <div className="bg-white rounded-2xl shadow-xl p-6">
+          <div className="flex items-center justify-center mb-4">
+            <img src="/Madihaa Delivery Hub Logo.png" alt="Madihaa Delivery Hub" className="w-56 h-56" />
           </div>
-          <h1 className="text-2xl font-bold text-center text-gray-900 mb-2">
+          <h1 className="text-2xl font-bold text-center text-gray-900 mb-1">
             Madihaa Delivery Hub
           </h1>
-          <p className="text-center text-gray-600 mb-8">
+          <p className="text-center text-gray-600 mb-4">
             {isFirstTimeSetup ? 'Create your account' : 'Sign in'}
           </p>
 
