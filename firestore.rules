@@ -2,104 +2,73 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     
-    // Helper functions
-    function isAuthenticated() {
-      return request.auth != null;
-    }
-    
-    function hasRole(role) {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == role;
-    }
-    
-    function hasShopAccess(shopId) {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permittedShopIds.has(shopId);
-    }
-    
-    function isSuperAdmin() {
-      return hasRole('super_admin');
-    }
-    
-    // Users collection - read/write for authenticated users (development mode)
+    // Users collection - read/write for all (passcode-based auth)
     match /users/{userId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Shops collection - read/write for authenticated users (development mode)
+    // Shops collection - read/write for all (passcode-based auth)
     match /shops/{shopId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Vehicles collection - read/write for authenticated users (development mode)
+    // Vehicles collection - read/write for all (passcode-based auth)
     match /vehicles/{vehicleId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Drivers collection - read/write for authenticated users (development mode)
+    // Drivers collection - read/write for all (passcode-based auth)
     match /drivers/{driverId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Staff collection - read/write for authenticated users (development mode)
+    // Staff collection - read/write for all (passcode-based auth)
     match /staff/{staffId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Boats collection
+    // Boats collection - read/write for all (passcode-based auth)
     match /boats/{boatId} {
-      allow read: if isAuthenticated();
-      allow write: if isSuperAdmin() || hasRole('loading_dispatch');
+      allow read, write: if true;
     }
     
-    // Islands collection
+    // Islands collection - read/write for all (passcode-based auth)
     match /islands/{islandId} {
-      allow read: if isAuthenticated();
-      allow write: if isSuperAdmin();
+      allow read, write: if true;
     }
     
-    // Deliveries - role-based access (development mode)
+    // Deliveries - read/write for all (passcode-based auth)
     match /deliveries/{deliveryId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
     
-    // Delivery Trips
+    // Delivery Trips - read/write for all (passcode-based auth)
     match /trips/{tripId} {
-      allow read, write: if isAuthenticated();
+      allow read, write: if true;
     }
 
     match /deliveryTrips/{tripId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
-      allow update: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
-      allow delete: if isSuperAdmin();
+      allow read, write: if true;
     }
     
-    // Boat Departure Batches
+    // Boat Departure Batches - read/write for all (passcode-based auth)
     match /boatDepartureBatches/{batchId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
-      allow update: if isAuthenticated() && (isSuperAdmin() || hasRole('loading_dispatch'));
-      allow delete: if isSuperAdmin();
+      allow read, write: if true;
     }
     
     // Delivery Events - audit log
     match /deliveryEvents/{eventId} {
-      allow read: if isAuthenticated() && isSuperAdmin();
-      allow create: if isAuthenticated(); // System creates events
-      allow update, delete: if false; // Events are immutable
+      allow read, write: if true;
     }
     
-    // Attachments
+    // Attachments - read/write for all (passcode-based auth)
     match /attachments/{attachmentId} {
-      allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
-      allow delete: if isSuperAdmin() || request.auth.uid == resource.data.uploadedBy;
+      allow read, write: if true;
     }
     
-    // Audit Logs
+    // Audit Logs - read/write for all (passcode-based auth)
     match /auditLogs/{logId} {
-      allow read: if isSuperAdmin();
-      allow create: if false; // System creates logs
-      allow update, delete: if false; // Logs are immutable
+      allow read, write: if true;
     }
   }
 }
