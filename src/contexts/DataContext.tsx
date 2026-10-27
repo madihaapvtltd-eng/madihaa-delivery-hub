@@ -108,14 +108,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Load vehicles from Firestore when Firebase is configured
   useEffect(() => {
     if (isFirebaseConfigured()) {
+      console.log('Loading vehicles from Firestore...');
       const unsubscribe = onSnapshot(collection(db, 'vehicles'), (snapshot) => {
         const vehiclesData = snapshot.docs.map(doc => ({
           ...doc.data(),
           vehicleId: doc.id,
         } as Vehicle));
+        console.log('Vehicles loaded:', vehiclesData);
         setVehicles(vehiclesData);
+      }, (error) => {
+        console.error('Error loading vehicles:', error);
       });
       return () => unsubscribe();
+    } else {
+      console.log('Firebase not configured, skipping vehicles load');
     }
   }, []);
 
@@ -136,14 +142,20 @@ export function DataProvider({ children }: { children: ReactNode }) {
   // Load staff from Firestore when Firebase is configured
   useEffect(() => {
     if (isFirebaseConfigured()) {
+      console.log('Loading staff from Firestore...');
       const unsubscribe = onSnapshot(collection(db, 'staff'), (snapshot) => {
         const staffData = snapshot.docs.map(doc => ({
           ...doc.data(),
           staffId: doc.id,
         } as Staff));
+        console.log('Staff loaded:', staffData);
         setStaff(staffData);
+      }, (error) => {
+        console.error('Error loading staff:', error);
       });
       return () => unsubscribe();
+    } else {
+      console.log('Firebase not configured, skipping staff load');
     }
   }, []);
 
