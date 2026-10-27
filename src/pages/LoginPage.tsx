@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
-import { Building2, Lock, Mail, Shield } from 'lucide-react';
+import { Building2, Lock, Mail } from 'lucide-react';
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -12,16 +12,14 @@ export function LoginPage() {
   const { login, setUserDirectly } = useAuth();
   const { users, addUser } = useData();
   const [isFirstTimeSetup, setIsFirstTimeSetup] = useState(false);
-  const [forceSetupMode, setForceSetupMode] = useState(false);
 
   useEffect(() => {
-    console.log('Users count:', users.length);
-    if (users.length === 0 || forceSetupMode) {
+    if (users.length === 0) {
       setIsFirstTimeSetup(true);
     } else {
       setIsFirstTimeSetup(false);
     }
-  }, [users, forceSetupMode]);
+  }, [users]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,8 +27,6 @@ export function LoginPage() {
 
     if (isFirstTimeSetup) {
       try {
-        console.log('Creating super admin with email:', email);
-        // Create super admin
         const superAdmin = await addUser({
           email,
           fullName: 'Super Admin',
@@ -40,17 +36,12 @@ export function LoginPage() {
           active: true,
           updatedAt: new Date(),
         });
-        console.log('Super admin created:', superAdmin);
-        // Directly set the user in AuthContext
         setUserDirectly(superAdmin);
-        // Navigate to app
         navigate('/');
       } catch (err) {
-        console.error('Error creating super admin:', err);
         setError('Failed to create super admin. Please try again.');
       }
     } else {
-      // Normal login
       const success = await login(email, passcode);
       if (success) {
         navigate('/');
@@ -71,32 +62,8 @@ export function LoginPage() {
             Madihaa Delivery Hub
           </h1>
           <p className="text-center text-gray-600 mb-8">
-            {isFirstTimeSetup ? 'Create your Super Admin account' : 'Sign in to manage deliveries'}
+            {isFirstTimeSetup ? 'Create your account' : 'Sign in'}
           </p>
-
-          {!isFirstTimeSetup && (
-            <div className="mb-4 text-center">
-              <button
-                type="button"
-                onClick={() => setForceSetupMode(true)}
-                className="text-sm text-blue-600 hover:text-blue-800 underline"
-              >
-                Force first-time setup (create new Super Admin)
-              </button>
-            </div>
-          )}
-
-          {isFirstTimeSetup && (
-            <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start">
-                <Shield className="w-5 h-5 text-blue-600 mt-0.5 mr-2" />
-                <div className="text-sm text-blue-800">
-                  <p className="font-medium">First-Time Setup</p>
-                  <p className="mt-1">No users exist yet. Enter your email and a 4-digit passcode to create the Super Admin account.</p>
-                </div>
-              </div>
-            </div>
-          )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
@@ -149,13 +116,9 @@ export function LoginPage() {
               type="submit"
               className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
             >
-              Sign In
+              Login
             </button>
           </form>
-
-          <p className="mt-6 text-center text-sm text-gray-500">
-            Firebase authentication required. Configure environment variables to enable login.
-          </p>
         </div>
       </div>
     </div>
