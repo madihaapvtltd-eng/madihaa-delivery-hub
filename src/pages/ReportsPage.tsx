@@ -233,7 +233,44 @@ export function ReportsPage() {
       )}
 
       {reportType === 'deliveries' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
+        <>
+          {/* Mobile Cards */}
+          <div className="sm:hidden space-y-4">
+            {filteredDeliveries.map(delivery => {
+              const shop = shops.find(s => s.shopId === delivery.shopId);
+              return (
+                <div key={delivery.deliveryId} className="bg-white rounded-lg shadow p-4 border">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                      <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Shop:</span>
+                      <span className="font-medium">{shop?.shopName || 'Unknown'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Destination:</span>
+                      <span className="font-medium">{delivery.destinationName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span className="text-xs capitalize">{delivery.currentStatus.replace(/_/g, ' ')}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop Table */}
+          <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
@@ -262,6 +299,7 @@ export function ReportsPage() {
             </tbody>
           </table>
         </div>
+        </>
       )}
 
       {reportType === 'status' && (

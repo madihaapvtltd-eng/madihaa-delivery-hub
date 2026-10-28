@@ -390,7 +390,31 @@ export function BoatsPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Mobile Cards for Islands */}
+          <div className="sm:hidden space-y-4">
+            {islands.map(island => (
+              <div key={island.islandId} className="bg-white rounded-lg shadow p-4 border">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <MapPin className="w-5 h-5 mr-2 text-gray-400" />
+                    <span className="font-bold text-gray-900">{island.islandName}</span>
+                  </div>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                    island.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                  }`}>
+                    {island.active ? 'Active' : 'Inactive'}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Code:</span>
+                  <span className="font-mono text-gray-900">{island.islandCode}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table for Islands */}
+          <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>

@@ -178,8 +178,84 @@ export function AllDeliveriesPage() {
         Showing {filteredDeliveries.length} of {userDeliveries.length} deliveries
       </div>
 
-      {/* Deliveries Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Mobile Cards */}
+      <div className="sm:hidden space-y-4 mb-6">
+        {filteredDeliveries.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            No deliveries found matching your filters
+          </div>
+        ) : (
+          filteredDeliveries.map(delivery => {
+            const shop = shops.find(s => s.shopId === delivery.shopId);
+            const overdue = isOverdue(delivery);
+            return (
+              <div key={delivery.deliveryId} className={`bg-white rounded-lg shadow p-4 border ${overdue ? 'border-red-300 bg-red-50' : ''}`}>
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                    <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                  </div>
+                  <div className="flex items-center">
+                    {overdue && (
+                      <span title="Overdue by more than 15 minutes">
+                        <AlertTriangle className="w-4 h-4 text-red-600 mr-2" />
+                      </span>
+                    )}
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(delivery.currentStatus)}`}>
+                      {delivery.currentStatus.replace(/_/g, ' ')}
+                    </span>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shop:</span>
+                    <span className="font-medium">{shop?.shopName || 'Unknown'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Destination:</span>
+                    <div className="font-medium">{delivery.destinationName}</div>
+                    {delivery.boatName && (
+                      <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
+                    )}
+                    {delivery.islandName && (
+                      <div className="text-xs text-gray-500">Island: {delivery.islandName} ({delivery.islandCode})</div>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Priority:</span>
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(delivery.priority)}`}>
+                      {delivery.priority}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Expected:</span>
+                    <span className="text-xs">{delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                  </div>
+                  {overdue && (
+                    <div className="text-xs text-red-600">
+                      Overdue by more than 15 minutes
+                    </div>
+                  )}
+                </div>
+                <button
+                  onClick={() => setSelectedDelivery(delivery.deliveryId)}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center justify-center"
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  View Details
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">

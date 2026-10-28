@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { hasPermission } from '../lib/permissions';
 import { formatDateTime } from '../lib/utils';
 import { uploadImageToImgBB, validateImageFile } from '../lib/imgbb';
-import { Search, Truck, X, Printer, RotateCcw, Trash2, Loader2 } from 'lucide-react';
+import { Search, Truck, X, Printer, RotateCcw, Trash2, Loader2, Clock } from 'lucide-react';
 import type { ReturnReason } from '../types';
 
 export function DeliveryPage() {
@@ -14,7 +14,7 @@ export function DeliveryPage() {
   const canCreateTrips = hasPermission(user?.role, 'canCreateTrips');
   const canDeleteDeliveries = hasPermission(user?.role, 'canDeleteDeliveries');
   const canDeleteTrips = hasPermission(user?.role, 'canDeleteTrips');
-  const [activeTab, setActiveTab] = useState<'create-trip' | 'loading' | 'queue' | 'trips'>(canCreateTrips ? 'create-trip' : 'loading');
+  const [activeTab, setActiveTab] = useState<'create-trip' | 'loading' | 'queue' | 'trips' | 'dispatched'>('loading');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<Record<string, string>>({});
   const [tripForm, setTripForm] = useState({
@@ -325,6 +325,57 @@ export function DeliveryPage() {
         </div>
       )}
 
+      {/* Mobile Cards for Loading/Queue Tabs */}
+      {(activeTab === 'loading' || activeTab === 'queue') && (
+        <div className="sm:hidden space-y-4 mb-6">
+          {filteredDeliveries.length === 0 ? (
+            <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+              <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+              <p>No deliveries found</p>
+            </div>
+          ) : (
+            filteredDeliveries.map(delivery => {
+              const shop = shops.find(s => s.shopId === delivery.shopId);
+              return (
+                <div key={delivery.deliveryId} className="bg-white rounded-lg shadow p-4 border">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                      <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                    </div>
+                  </div>
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Shop:</span>
+                      <span className="font-medium">{shop?.shopName || 'Unknown'}</span>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Destination:</span>
+                      <div className="font-medium">{delivery.destinationName}</div>
+                      {delivery.boatName && (
+                        <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
+                      )}
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Vehicle:</span>
+                      <span className="text-xs">{delivery.vehicleId ? vehicles.find(v => v.vehicleId === delivery.vehicleId)?.registrationNumber || '-' : '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Driver:</span>
+                      <span className="text-xs">{delivery.driverId ? drivers.find(d => d.driverId === delivery.driverId)?.fullName || '-' : '-'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Created:</span>
+                      <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
       {/* Create Trip Tab */}
       {activeTab === 'create-trip' && (
         <div className="space-y-6">
@@ -392,7 +443,7 @@ export function DeliveryPage() {
               <h3 className="text-lg font-semibold">Created Trips</h3>
               <p className="text-sm text-gray-600">Trips ready for loading</p>
             </div>
-            <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
               <table className="w-full min-w-[800px]">
                 <thead className="bg-gray-50">
                   <tr>
@@ -541,52 +592,250 @@ export function DeliveryPage() {
               </table>
             </div>
           </div>
+
+          {/* Mobile Cards for Created Trips */}
+          <div className="sm:hidden space-y-4">
+            {trips.filter(t => t.status === 'planned').length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+                <p>No trips created yet</p>
+              </div>
+            ) : (
+              trips.filter(t => t.status === 'planned').map(trip => (
+                <div key={trip.tripId} className="bg-white rounded-lg shadow p-4 border">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <div className="font-bold text-blue-600 text-sm">{trip.tripId}</div>
+                      <div className="text-xs text-gray-600">
+                        {trip.vehicleNumberSnapshot} - {trip.driverNameSnapshot}
+                      </div>
+                    </div>
+                    {canDeleteTrips && (
+                      <button
+                        onClick={() => handleDeleteTrip(trip.tripId)}
+                        className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="space-y-2 text-sm mb-4">
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Loaded Bills:</span>
+                      <span className="font-medium">{trip.deliveryIds.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Planned Departure:</span>
+                      <span className="text-xs">{formatDateTime(trip.plannedDepartureAt)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-600">Status:</span>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        trip.status === 'planned' ? 'bg-blue-100 text-blue-800' :
+                        trip.status === 'loading' ? 'bg-yellow-100 text-yellow-800' :
+                        trip.status === 'dispatched' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {trip.status}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => toggleTripExpansion(trip.tripId)}
+                    className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
+                  >
+                    {expandedTrips.has(trip.tripId) ? 'Hide Bills' : 'View Bills'}
+                  </button>
+                  {expandedTrips.has(trip.tripId) && (
+                    <div className="mt-4 space-y-2">
+                      {trip.deliveryIds.length === 0 ? (
+                        <p className="text-sm text-gray-500">No bills loaded</p>
+                      ) : (
+                        trip.deliveryIds.map(deliveryId => {
+                          const delivery = deliveries.find(d => d.deliveryId === deliveryId);
+                          const shop = delivery ? shops.find(s => s.shopId === delivery.shopId) : null;
+                          return delivery ? (
+                            <div key={deliveryId} className="bg-gray-50 p-3 rounded border">
+                              <div className="text-sm font-medium text-gray-900">{delivery.billNumber}</div>
+                              <div className="text-xs text-gray-500">{shop?.shopName || 'Unknown'}</div>
+                              <div className="text-xs text-gray-600 mt-1">{delivery.destinationName}</div>
+                            </div>
+                          ) : null;
+                        })
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
 
-      {/* Table */}
+      {/* Mobile Cards for Trips Tab */}
       {activeTab === 'trips' && (
-        <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Trip ID
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Vehicle
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Driver
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Loaded Bills
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Planned Departure
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {trips.filter(t => t.status === 'dispatched').length === 0 ? (
-                  <tr>
-                    <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
-                      <Truck className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                      <p>No dispatched trips found</p>
-                    </td>
-                  </tr>
-                ) : (
-                  trips.filter(t => t.status === 'dispatched').map(trip => (
+        <div className="sm:hidden space-y-4">
+              {trips.length === 0 ? (
+                <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+                  <p>No trips found</p>
+                </div>
+              ) : (
+                trips.map(trip => (
+                  <div key={trip.tripId} className="bg-white rounded-lg shadow p-4 border">
+                    <div className="flex justify-between items-start mb-3">
+                      <div>
+                        <div className="font-bold text-blue-600 text-sm">{trip.tripId}</div>
+                        <div className="text-xs text-gray-600">
+                          {trip.vehicleNumberSnapshot} - {trip.driverNameSnapshot}
+                        </div>
+                      </div>
+                      {canDeleteTrips && (
+                        <button
+                          onClick={() => handleDeleteTrip(trip.tripId)}
+                          className="px-3 py-1 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                    <div className="space-y-2 text-sm mb-4">
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Loaded Bills:</span>
+                        <span className="font-medium">{trip.deliveryIds.length}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Planned Departure:</span>
+                        <span className="text-xs">{formatDateTime(trip.plannedDepartureAt)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Created:</span>
+                        <span className="text-xs">{formatDateTime(trip.createdAt)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-600">Status:</span>
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          trip.status === 'planned' ? 'bg-blue-100 text-blue-800' :
+                          trip.status === 'loading' ? 'bg-yellow-100 text-yellow-800' :
+                          trip.status === 'dispatched' ? 'bg-green-100 text-green-800' :
+                          'bg-gray-100 text-gray-800'
+                        }`}>
+                          {trip.status}
+                        </span>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => toggleTripExpansion(trip.tripId)}
+                      className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg text-sm hover:bg-gray-200"
+                    >
+                      {expandedTrips.has(trip.tripId) ? 'Hide Bills' : 'View Bills'}
+                    </button>
+                    {expandedTrips.has(trip.tripId) && (
+                      <div className="mt-4 space-y-2">
+                        {trip.deliveryIds.length === 0 ? (
+                          <p className="text-sm text-gray-500">No bills loaded</p>
+                        ) : (
+                          trip.deliveryIds.map(deliveryId => {
+                            const delivery = deliveries.find(d => d.deliveryId === deliveryId);
+                            const shop = delivery ? shops.find(s => s.shopId === delivery.shopId) : null;
+                            return delivery ? (
+                              <div key={deliveryId} className="bg-gray-50 p-3 rounded border">
+                                <div className="flex justify-between items-start mb-2">
+                                  <div className="text-sm font-medium text-gray-900">{delivery.billNumber}</div>
+                                  <div className="text-xs text-gray-500">{shop?.shopName || 'Unknown'}</div>
+                                </div>
+                                <div className="text-xs text-gray-600 mb-2">{delivery.destinationName}</div>
+                                <div className="flex flex-wrap gap-2">
+                                  {delivery.currentStatus === 'delivered' ? (
+                                    <span className="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Delivered</span>
+                                  ) : delivery.currentStatus === 'returned' ? (
+                                    <span className="px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">Returned</span>
+                                  ) : (
+                                    <>
+                                      <button
+                                        onClick={() => setSignatureModal({ deliveryId, tripId: trip.tripId })}
+                                        className="px-2 py-1 bg-blue-600 text-white rounded text-xs hover:bg-blue-700"
+                                      >
+                                        Mark Delivered
+                                      </button>
+                                      <button
+                                        onClick={() => openReturnModal(deliveryId)}
+                                        className="px-2 py-1 bg-orange-600 text-white rounded text-xs hover:bg-orange-700 flex items-center"
+                                      >
+                                        <RotateCcw className="w-3 h-3 mr-1" />
+                                        Return
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    onClick={() => setPrintDeliveryId(deliveryId)}
+                                    className="px-2 py-1 bg-gray-100 text-gray-700 rounded text-xs hover:bg-gray-200 flex items-center"
+                                  >
+                                    <Printer className="w-3 h-3 mr-1" />
+                                    Print
+                                  </button>
+                                  {canDeleteDeliveries && (
+                                    <button
+                                      onClick={() => handleDeleteDelivery(deliveryId)}
+                                      className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                                    >
+                                      <Trash2 className="w-3 h-3" />
+                                    </button>
+                                  )}
+                                </div>
+                              </div>
+                            ) : null;
+                          })
+                        )}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
+            </div>
+          )}
+
+          {/* Table */}
+          {activeTab === 'trips' && (
+            <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                <table className="w-full">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Trip ID
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Vehicle
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Driver
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Loaded Bills
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Planned Departure
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Created
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {trips.filter(t => t.status === 'dispatched').length === 0 ? (
+                      <tr>
+                        <td colSpan={8} className="px-6 py-12 text-center text-gray-500">
+                          <Truck className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                          <p>No dispatched trips found</p>
+                        </td>
+                      </tr>
+                    ) : (
+                      trips.filter(t => t.status === 'dispatched').map(trip => (
                     <React.Fragment key={trip.tripId}>
                       <tr className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
@@ -751,7 +1000,7 @@ export function DeliveryPage() {
 
       {activeTab === 'loading' ? (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -871,7 +1120,7 @@ export function DeliveryPage() {
 
       {activeTab === 'queue' && (
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <div className="hidden sm:block overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>

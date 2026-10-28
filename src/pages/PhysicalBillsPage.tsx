@@ -30,7 +30,7 @@ export function PhysicalBillsPage() {
   };
 
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Physical Bills Pending</h1>
         <p className="text-gray-600">Manage deliveries awaiting physical bills</p>
@@ -55,8 +55,60 @@ export function PhysicalBillsPage() {
         Showing {filteredBills.length} of {pendingBills.length} pending bills
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Mobile Cards */}
+      <div className="sm:hidden space-y-4 mb-6">
+        {filteredBills.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>No pending physical bills found</p>
+          </div>
+        ) : (
+          filteredBills.map(delivery => {
+            const shop = shops.find(s => s.shopId === delivery.shopId);
+            return (
+              <div key={delivery.deliveryId} className="bg-white rounded-lg shadow p-4 border">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                    <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shop:</span>
+                    <span className="font-medium">{shop?.shopName || 'Unknown'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Destination:</span>
+                    <div className="font-medium">{delivery.destinationName}</div>
+                    {delivery.boatName && (
+                      <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Expected:</span>
+                    <span className="text-xs">{delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={() => handleHandover(delivery.deliveryId)}
+                  className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center justify-center"
+                >
+                  <Check className="w-4 h-4 mr-2" />
+                  Handover
+                </button>
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">

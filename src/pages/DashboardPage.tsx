@@ -176,10 +176,53 @@ export function DashboardPage() {
 
       {/* Recent Deliveries */}
       <div className="bg-white rounded-lg shadow">
-        <div className="px-6 py-4 border-b">
+        <div className="px-4 sm:px-6 py-4 border-b">
           <h2 className="text-lg font-semibold text-gray-900">Recent Deliveries</h2>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile Cards */}
+        <div className="sm:hidden space-y-4 p-4">
+          {recentDeliveries.map(delivery => (
+            <div key={delivery.deliveryId} className="bg-gray-50 rounded-lg p-4 border">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                  <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                </div>
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(delivery.currentStatus)}`}>
+                  {delivery.currentStatus.replace(/_/g, ' ')}
+                </span>
+              </div>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Destination:</span>
+                  <span className="font-medium">{delivery.destinationName}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Priority:</span>
+                  <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(delivery.priority)}`}>
+                    {delivery.priority}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Expected:</span>
+                  <span className="text-xs">{delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Delivered:</span>
+                  <span className="text-xs">{delivery.deliveredAt ? formatDateTime(delivery.deliveredAt) : '-'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-600">Created:</span>
+                  <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>

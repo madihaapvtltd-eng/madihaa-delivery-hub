@@ -129,8 +129,99 @@ export function GodownPage() {
         Showing {filteredDeliveries.length} of {currentDeliveries.length} deliveries
       </div>
 
-      {/* Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Mobile Cards */}
+      <div className="sm:hidden space-y-4 mb-6">
+        {filteredDeliveries.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>No deliveries found</p>
+          </div>
+        ) : (
+          filteredDeliveries.map(delivery => {
+            const shop = shops.find(s => s.shopId === delivery.shopId);
+            return (
+              <div key={delivery.deliveryId} className="bg-white rounded-lg shadow p-4 border">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <div className="font-bold text-blue-600 text-sm">{delivery.deliveryId}</div>
+                    <div className="text-xs text-gray-600">Bill: {delivery.billNumber}</div>
+                  </div>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Shop:</span>
+                    <span className="font-medium">{shop?.shopName || 'Unknown'}</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Destination:</span>
+                    <div className="font-medium">{delivery.destinationName}</div>
+                    {delivery.boatName && (
+                      <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
+                    )}
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Expected:</span>
+                    <span className="text-xs">{delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Prep Staff:</span>
+                    <span className="text-xs">{delivery.preparationAssignedTo ? staff.find(s => s.staffId === delivery.preparationAssignedTo)?.fullName || 'Unknown' : '-'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Created:</span>
+                    <span className="text-xs">{formatDateTime(delivery.createdAt)}</span>
+                  </div>
+                </div>
+                {activeTab === 'new' && (
+                  <div className="space-y-2 pt-3 border-t">
+                    <select
+                      value={selectedPreparationStaff[delivery.deliveryId] || ''}
+                      onChange={(e) => setSelectedPreparationStaff(prev => ({ ...prev, [delivery.deliveryId]: e.target.value }))}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select Preparation Staff</option>
+                      {staff.filter(s => s.department === 'preparation' && s.active).map(s => (
+                        <option key={s.staffId} value={s.staffId}>{s.fullName}</option>
+                      ))}
+                    </select>
+                    <button
+                      onClick={() => handleConfirmReceived(delivery.deliveryId)}
+                      disabled={!selectedPreparationStaff[delivery.deliveryId] || !canChangeStatus}
+                      className="w-full px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      Confirm
+                    </button>
+                  </div>
+                )}
+                {activeTab === 'preparation' && (
+                  <div className="space-y-2 pt-3 border-t">
+                    <select
+                      value={selectedStatus[delivery.deliveryId] || delivery.currentStatus}
+                      onChange={(e) => handleStatusChange(delivery.deliveryId, e.target.value as DeliveryStatus)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="preparation_in_progress">Preparation in Progress</option>
+                      <option value="preparation_completed">Preparation Completed</option>
+                    </select>
+                    <button
+                      onClick={() => handleSave(delivery.deliveryId)}
+                      disabled={!selectedStatus[delivery.deliveryId] || selectedStatus[delivery.deliveryId] === delivery.currentStatus || !canChangeStatus}
+                      className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      Save
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })
+        )}
+      </div>
+
+      {/* Table - Desktop only */}
+      <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
         <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
           <table className="w-full min-w-[700px]">
             <thead className="bg-gray-50">

@@ -62,8 +62,8 @@ export function ShopsPage() {
   };
 
   return (
-    <div className="max-w-6xl">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Wholesale Shops</h1>
           <p className="text-gray-600">Manage wholesale shop information</p>
@@ -71,7 +71,7 @@ export function ShopsPage() {
         {canCreateShops && (
           <button
             onClick={handleAddNew}
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
           >
             <Plus className="w-5 h-5 mr-2" />
             Add Shop
@@ -93,8 +93,58 @@ export function ShopsPage() {
         </div>
       </div>
 
-      {/* Shops Table */}
-      <div className="bg-white rounded-lg shadow overflow-hidden">
+      {/* Mobile Cards */}
+      <div className="sm:hidden space-y-4 mb-6">
+        {filteredShops.length === 0 ? (
+          <div className="bg-white rounded-lg shadow p-12 text-center text-gray-500">
+            <Building2 className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>No shops found. Click "Add Shop" to create one.</p>
+          </div>
+        ) : (
+          filteredShops.map((shop) => (
+            <div key={shop.shopId} className="bg-white rounded-lg shadow p-4 border">
+              <div className="flex justify-between items-start mb-3">
+                <div>
+                  <div className="font-bold text-gray-900">{shop.shopName}</div>
+                  <div className="text-xs text-gray-600">Code: {shop.shopCode}</div>
+                </div>
+                <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                  shop.active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {shop.active ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+              <div className="text-sm text-gray-600 mb-4">
+                <span className="text-gray-600">Address:</span>
+                <div className="font-medium">{shop.address}</div>
+              </div>
+              <div className="flex justify-end space-x-2">
+                {canEditShops && (
+                  <button
+                    onClick={() => handleEdit(shop)}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center"
+                  >
+                    <Pencil className="w-4 h-4 mr-1" />
+                    Edit
+                  </button>
+                )}
+                {canDeleteShops && (
+                  <button
+                    onClick={() => handleDelete(shop.shopId)}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 flex items-center"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </button>
+                )}
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Desktop Table */}
+      <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>

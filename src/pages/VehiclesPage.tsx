@@ -221,7 +221,67 @@ export function VehiclesPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Mobile Cards for Vehicles */}
+          <div className="sm:hidden space-y-4 mb-6">
+            {vehicles.map(vehicle => (
+              <div key={vehicle.vehicleId} className="bg-white rounded-lg shadow p-4 border">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <Truck className="w-5 h-5 mr-2 text-gray-400" />
+                    <span className="font-bold text-gray-900">{vehicle.registrationNumber}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleVehicleActive(vehicle.vehicleId)}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      vehicle.active
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {vehicle.active ? (
+                      <ToggleRight className="w-4 h-4 mr-1" />
+                    ) : (
+                      <ToggleLeft className="w-4 h-4 mr-1" />
+                    )}
+                    {vehicle.active ? 'Active' : 'Inactive'}
+                  </button>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Type:</span>
+                    <span className="font-medium">{vehicle.vehicleType}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Capacity:</span>
+                    <span className="font-medium">{vehicle.capacity ? `${vehicle.capacity} kg` : 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => handleEditVehicle(vehicle.vehicleId)}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (confirm('Are you sure you want to delete this vehicle?')) {
+                        await deleteVehicle(vehicle.vehicleId);
+                      }
+                    }}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 flex items-center"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table for Vehicles */}
+          <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
@@ -372,7 +432,67 @@ export function VehiclesPage() {
             </div>
           )}
 
-          <div className="bg-white rounded-lg shadow overflow-hidden">
+          {/* Mobile Cards for Drivers */}
+          <div className="sm:hidden space-y-4 mb-6">
+            {drivers.map(driver => (
+              <div key={driver.driverId} className="bg-white rounded-lg shadow p-4 border">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center">
+                    <User className="w-5 h-5 mr-2 text-gray-400" />
+                    <span className="font-bold text-gray-900">{driver.fullName}</span>
+                  </div>
+                  <button
+                    onClick={() => toggleDriverActive(driver.driverId)}
+                    className={`flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      driver.active
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {driver.active ? (
+                      <ToggleRight className="w-4 h-4 mr-1" />
+                    ) : (
+                      <ToggleLeft className="w-4 h-4 mr-1" />
+                    )}
+                    {driver.active ? 'Active' : 'Inactive'}
+                  </button>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <div className="flex items-center">
+                    <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                    <span className="text-gray-600">{driver.phone}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-600">Employee ID:</span>
+                    <span className="font-medium">{driver.employeeId || 'N/A'}</span>
+                  </div>
+                </div>
+                <div className="flex justify-end space-x-2">
+                  <button
+                    onClick={() => handleEditDriver(driver.driverId)}
+                    className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center"
+                  >
+                    <Edit className="w-4 h-4 mr-1" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={async () => {
+                      if (confirm('Are you sure you want to delete this driver?')) {
+                        await deleteDriver(driver.driverId);
+                      }
+                    }}
+                    className="px-3 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700 flex items-center"
+                  >
+                    <Trash2 className="w-4 h-4 mr-1" />
+                    Delete
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table for Drivers */}
+          <div className="hidden sm:block bg-white rounded-lg shadow overflow-hidden">
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
