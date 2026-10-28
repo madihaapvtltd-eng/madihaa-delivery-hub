@@ -3,7 +3,7 @@ import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { hasPermission } from '../lib/permissions';
 import { formatDateTime } from '../lib/utils';
-import { Search, Clock, Check, Plus, Eye, FileText } from 'lucide-react';
+import { Search, Clock, Check, Plus, Eye, FileText, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function WholesalePage() {
@@ -315,18 +315,31 @@ export function WholesalePage() {
             </div>
             <div className="flex justify-center">
               {viewingAttachment.endsWith('.pdf') ? (
-                <div className="w-full h-[70vh] flex flex-col items-center justify-center space-y-4">
-                  <FileText className="w-16 h-16 text-gray-400" />
-                  <p className="text-gray-600">PDF Document</p>
-                  <a
-                    href={viewingAttachment}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center"
-                  >
-                    <Eye className="w-4 h-4 mr-2" />
-                    Open PDF in New Tab
-                  </a>
+                <div className="w-full h-[70vh] flex flex-col items-center justify-center space-y-6">
+                  <FileText className="w-24 h-24 text-gray-400" />
+                  <div className="text-center space-y-2">
+                    <p className="text-lg font-medium text-gray-700">PDF Document</p>
+                    <p className="text-sm text-gray-500">Click below to view or download the PDF</p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row gap-4">
+                    <a
+                      href={viewingAttachment}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center justify-center"
+                    >
+                      <Eye className="w-4 h-4 mr-2" />
+                      Open PDF in New Tab
+                    </a>
+                    <a
+                      href={viewingAttachment}
+                      download
+                      className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 flex items-center justify-center"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      Download PDF
+                    </a>
+                  </div>
                 </div>
               ) : (
                 <img

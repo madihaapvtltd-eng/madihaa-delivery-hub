@@ -9,7 +9,7 @@ export async function uploadImageToImgBB(file: File): Promise<string> {
 
   // For images, use ImgBB
   const apiKey = import.meta.env.VITE_IMGBB_API_KEY;
-  
+
   if (!apiKey) {
     console.warn('ImgBB API key not configured, using demo mode');
     // Fallback to demo mode
@@ -31,7 +31,7 @@ export async function uploadImageToImgBB(file: File): Promise<string> {
     });
 
     const data = await response.json();
-    
+
     if (!data.success) {
       throw new Error('Failed to upload image to ImgBB');
     }
@@ -46,7 +46,7 @@ export async function uploadImageToImgBB(file: File): Promise<string> {
 async function uploadToCloudinary(file: File): Promise<string> {
   const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-  
+
   if (!cloudName || !uploadPreset) {
     console.warn('Cloudinary not configured, using demo mode');
     return new Promise((resolve) => {
@@ -62,7 +62,7 @@ async function uploadToCloudinary(file: File): Promise<string> {
   formData.append('upload_preset', uploadPreset);
   formData.append('resource_type', 'raw');
   formData.append('public_id', `delivery_${Date.now()}`);
-  formData.append('folder', 'delivery_bills');
+  formData.append('folder', 'samples/ecommerce');
 
   try {
     const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/raw/upload`, {
@@ -71,13 +71,12 @@ async function uploadToCloudinary(file: File): Promise<string> {
     });
 
     const data = await response.json();
-    
+
     if (data.error) {
       console.error('Cloudinary error:', data.error);
       throw new Error(data.error.message);
     }
 
-    // Use the secure_url from response, which should be the correct raw URL
     return data.secure_url;
   } catch (error) {
     console.error('Cloudinary upload error:', error);
