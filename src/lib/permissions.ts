@@ -29,6 +29,8 @@ export const rolePermissions = {
     canChangeDeliveryStatus: true,
     canCreateNewDelivery: true,
     canHandoverPhysicalBills: true,
+    canDeleteDeliveries: true,
+    canDeleteTrips: true,
   },
   wholesale_staff: {
     canViewDashboard: true,
@@ -58,6 +60,8 @@ export const rolePermissions = {
     canChangeDeliveryStatus: true,
     canCreateNewDelivery: true,
     canHandoverPhysicalBills: true,
+    canDeleteDeliveries: false,
+    canDeleteTrips: false,
   },
   godown_staff: {
     canViewDashboard: true,
@@ -87,6 +91,8 @@ export const rolePermissions = {
     canChangeDeliveryStatus: true,
     canCreateNewDelivery: false,
     canHandoverPhysicalBills: false,
+    canDeleteDeliveries: false,
+    canDeleteTrips: false,
   },
   preparation_team: {
     canViewDashboard: true,
@@ -116,6 +122,8 @@ export const rolePermissions = {
     canChangeDeliveryStatus: true,
     canCreateNewDelivery: false,
     canHandoverPhysicalBills: false,
+    canDeleteDeliveries: false,
+    canDeleteTrips: false,
   },
 };
 

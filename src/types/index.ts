@@ -25,7 +25,16 @@ export type DeliveryStatus =
   | 'rejected'
   | 'delivery_failed'
   | 'on_hold'
-  | 'cancelled';
+  | 'cancelled'
+  | 'returned';
+
+// Return Reason
+export type ReturnReason =
+  | 'boat_left'
+  | 'boat_full'
+  | 'boat_didnt_arrive'
+  | 'shop_closed'
+  | 'other';
 
 // Destination Type
 export type DestinationType = 
@@ -101,6 +110,10 @@ export interface Delivery {
   remarks?: string;
   attachmentIds: string[];
   signature?: string;
+  deliveryImage?: string;
+  returnReason?: ReturnReason;
+  returnReasonDetails?: string;
+  totalValue?: number;
 }
 
 // Delivery Event
@@ -224,5 +237,15 @@ export interface AuditLog {
   entityId: string;
   before?: any;
   after?: any;
+  updatedAt: Date;
+}
+
+// Delivery History
+export interface DeliveryHistory {
+  historyId: string;
+  boatNames: string[];
+  shopNames: string[];
+  contactNames: string[];
+  contactNumbers: string[];
   updatedAt: Date;
 }

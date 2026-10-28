@@ -12,9 +12,10 @@ import type {
   DeliveryEvent,
   Attachment,
   Staff,
+  DeliveryHistory,
 } from '../types';
 import { db, isFirebaseConfigured } from '../lib/firebase';
-import { collection, addDoc, onSnapshot, doc, updateDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { collection, addDoc, onSnapshot, doc, updateDoc, getDocs, deleteDoc, setDoc } from 'firebase/firestore';
 
 interface DataContextType {
   deliveries: Delivery[];
@@ -28,10 +29,12 @@ interface DataContextType {
   events: DeliveryEvent[];
   attachments: Attachment[];
   staff: Staff[];
+  deliveryHistory: DeliveryHistory | null;
   addDelivery: (delivery: Omit<Delivery, 'deliveryId' | 'createdAt' | 'updatedAt'>) => Promise<Delivery>;
   updateDelivery: (deliveryId: string, updates: Partial<Delivery>) => void;
   addTrip: (trip: Omit<DeliveryTrip, 'tripId' | 'createdAt'>) => Promise<DeliveryTrip>;
   updateTrip: (tripId: string, updates: Partial<DeliveryTrip>) => Promise<void>;
+  deleteTrip: (tripId: string) => Promise<void>;
   addVehicle: (vehicle: Omit<Vehicle, 'vehicleId'>) => Promise<Vehicle>;
   updateVehicle: (vehicleId: string, updates: Partial<Vehicle>) => void;
   addDriver: (driver: Omit<Driver, 'driverId'>) => Promise<Driver>;
@@ -52,6 +55,8 @@ interface DataContextType {
   deleteStaff: (staffId: string) => Promise<void>;
   deleteVehicle: (vehicleId: string) => Promise<void>;
   deleteDriver: (driverId: string) => Promise<void>;
+  deleteDelivery: (deliveryId: string) => Promise<void>;
+  updateDeliveryHistory: (updates: Partial<DeliveryHistory>) => Promise<void>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -68,6 +73,29 @@ export function DataProvider({ children }: { children: ReactNode }) {
   const [events, setEvents] = useState<DeliveryEvent[]>([]);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [staff, setStaff] = useState<Staff[]>([]);
+  const [deliveryHistory, setDeliveryHistory] = useState<DeliveryHistory | null>(null);
+
+  // Load delivery history from Firestore when Firebase is configured
+  useEffect(() => {
+    if (isFirebaseConfigured()) {
+      const unsubscribe = onSnapshot(doc(db, 'deliveryHistory', 'global'), (doc) => {
+        if (doc.exists()) {
+          setDeliveryHistory(doc.data() as DeliveryHistory);
+        } else {
+          // Initialize with empty history if it doesn't exist
+          setDeliveryHistory({
+            historyId: 'global',
+            boatNames: [],
+            shopNames: [],
+            contactNames: [],
+            contactNumbers: [],
+            updatedAt: new Date(),
+          });
+        }
+      });
+      return () => unsubscribe();
+    }
+  }, []);
 
   // Load users from Firestore when Firebase is configured
   useEffect(() => {
@@ -587,6 +615,38 @@ export function DataProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const deleteDelivery = async (deliveryId: string) => {
+    if (isFirebaseConfigured()) {
+      await deleteDoc(doc(db, 'deliveries', deliveryId));
+    }
+  };
+
+  const deleteTrip = async (tripId: string) => {
+    if (isFirebaseConfigured()) {
+      await deleteDoc(doc(db, 'trips', tripId));
+    }
+  };
+
+  const updateDeliveryHistory = async (updates: Partial<DeliveryHistory>) => {
+    console.log('[updateDeliveryHistory] Starting update with:', updates);
+    if (isFirebaseConfigured()) {
+      try {
+        const historyRef = doc(db, 'deliveryHistory', 'global');
+        console.log('[updateDeliveryHistory] Document reference:', historyRef.path);
+        await setDoc(historyRef, {
+          ...updates,
+          updatedAt: new Date(),
+        }, { merge: true });
+        console.log('[updateDeliveryHistory] Successfully updated delivery history');
+      } catch (error) {
+        console.error('[updateDeliveryHistory] Error updating delivery history:', error);
+        throw error;
+      }
+    } else {
+      console.log('[updateDeliveryHistory] Firebase not configured, skipping update');
+    }
+  };
+
   const addEvent = (eventData: Omit<DeliveryEvent, 'eventId' | 'eventAt'>): DeliveryEvent => {
     const newEvent: DeliveryEvent = {
       ...eventData,
@@ -621,6 +681,7 @@ export function DataProvider({ children }: { children: ReactNode }) {
         events,
         attachments,
         staff,
+        deliveryHistory,
         addDelivery,
         updateDelivery,
         addTrip,
@@ -645,6 +706,9 @@ export function DataProvider({ children }: { children: ReactNode }) {
         deleteStaff,
         deleteVehicle,
         deleteDriver,
+        deleteDelivery,
+        deleteTrip,
+        updateDeliveryHistory,
       }}
     >
       {children}

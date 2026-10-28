@@ -8,17 +8,17 @@ import { useNavigate } from 'react-router-dom';
 
 export function NewDeliveryPage() {
   const { user } = useAuth();
-  const { shops, boats, staff, addDelivery } = useData();
+  const { shops, boats, staff, addDelivery, deliveryHistory, updateDeliveryHistory } = useData();
   const navigate = useNavigate();
-  
+
   // Load saved preferences from localStorage
   const savedPreferences = JSON.parse(localStorage.getItem('deliveryPreferences') || '{}');
-  
+
   const [formData, setFormData] = useState({
     shopId: user?.permittedShopIds[0] || '',
     billNumber: '',
     destinationType: 'male_shop' as DestinationType,
-    destinationName: '',
+    destinationName: savedPreferences.destinationName || '',
     boatName: savedPreferences.boatName || '',
     islandName: '',
     islandCode: '',
@@ -29,6 +29,7 @@ export function NewDeliveryPage() {
     priority: 'medium' as Priority,
     remarks: '',
     staffId: '',
+    totalValue: '',
   });
   const [billImage, setBillImage] = useState<File | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,16 +78,42 @@ export function NewDeliveryPage() {
         entryStaffId: formData.staffId || undefined,
         remarks: formData.remarks || undefined,
         attachmentIds: billImageUrl ? [billImageUrl] : [],
+        totalValue: formData.totalValue ? parseFloat(formData.totalValue) : undefined,
       });
 
       // Save preferences if enabled
       if (savePreferences) {
         const preferences = {
           boatName: formData.boatName,
+          destinationName: formData.destinationName,
           contactName: formData.contactName,
           contactNumber: formData.contactNumber,
         };
         localStorage.setItem('deliveryPreferences', JSON.stringify(preferences));
+      }
+
+      // Save to history for dropdown suggestions
+      const history = deliveryHistory || {
+        boatNames: [],
+        shopNames: [],
+        contactNames: [],
+        contactNumbers: [],
+      };
+      const updates: any = {};
+      if (formData.boatName) {
+        updates.boatNames = [...new Set([...history.boatNames, formData.boatName])].slice(-20);
+      }
+      if (formData.destinationName) {
+        updates.shopNames = [...new Set([...history.shopNames, formData.destinationName])].slice(-20);
+      }
+      if (formData.contactName) {
+        updates.contactNames = [...new Set([...history.contactNames, formData.contactName])].slice(-20);
+      }
+      if (formData.contactNumber) {
+        updates.contactNumbers = [...new Set([...history.contactNumbers, formData.contactNumber])].slice(-20);
+      }
+      if (Object.keys(updates).length > 0) {
+        await updateDeliveryHistory(updates);
       }
       
       // Navigate to Wholesale page
@@ -97,7 +124,7 @@ export function NewDeliveryPage() {
         shopId: user?.permittedShopIds[0] || '',
         billNumber: '',
         destinationType: 'male_shop',
-        destinationName: '',
+        destinationName: savePreferences ? formData.destinationName : '',
         boatName: savePreferences ? formData.boatName : '',
         islandName: '',
         islandCode: '',
@@ -108,6 +135,7 @@ export function NewDeliveryPage() {
         priority: 'medium',
         remarks: '',
         staffId: '',
+        totalValue: '',
       });
       setBillImage(null);
     } catch (err) {
@@ -196,6 +224,21 @@ export function NewDeliveryPage() {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
+              Total Value (MVR)
+            </label>
+            <input
+              type="number"
+              step="0.01"
+              min="0"
+              value={formData.totalValue}
+              onChange={(e) => setFormData({ ...formData, totalValue: e.target.value })}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter total value in MVR"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Destination Type <span className="text-red-500">*</span>
             </label>
             <select
@@ -247,6 +290,11 @@ export function NewDeliveryPage() {
                     {boat.boatName}
                   </option>
                 ))}
+                {(deliveryHistory?.boatNames || []).map((name, index) => (
+                  <option key={`history-boat-${index}`} value={name}>
+                    {name}
+                  </option>
+                ))}
               </datalist>
             </div>
           </div>
@@ -260,11 +308,19 @@ export function NewDeliveryPage() {
               </label>
               <input
                 type="text"
+                list="shop-list"
                 value={formData.destinationName}
                 onChange={(e) => setFormData({ ...formData, destinationName: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Enter shop name"
               />
+              <datalist id="shop-list">
+                {(deliveryHistory?.shopNames || []).map((name, index) => (
+                  <option key={`history-shop-${index}`} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </datalist>
             </div>
           </div>
         )}
@@ -277,11 +333,19 @@ export function NewDeliveryPage() {
             </label>
             <input
               type="text"
+              list="contact-name-list"
               value={formData.contactName}
               onChange={(e) => setFormData({ ...formData, contactName: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter contact name"
             />
+            <datalist id="contact-name-list">
+              {(deliveryHistory?.contactNames || []).map((name, index) => (
+                <option key={`history-contact-name-${index}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </datalist>
           </div>
 
           <div>
@@ -290,11 +354,19 @@ export function NewDeliveryPage() {
             </label>
             <input
               type="tel"
+              list="contact-number-list"
               value={formData.contactNumber}
               onChange={(e) => setFormData({ ...formData, contactNumber: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="Enter contact number"
             />
+            <datalist id="contact-number-list">
+              {(deliveryHistory?.contactNumbers || []).map((number, index) => (
+                <option key={`history-contact-number-${index}`} value={number}>
+                  {number}
+                </option>
+              ))}
+            </datalist>
           </div>
         </div>
 
@@ -308,7 +380,7 @@ export function NewDeliveryPage() {
             className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
           />
           <label htmlFor="savePreferences" className="ml-2 block text-sm text-gray-700">
-            Save boat name and contact details for next delivery
+            Save boat name, shop name, and contact details for next delivery
           </label>
         </div>
 

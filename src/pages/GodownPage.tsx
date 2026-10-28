@@ -76,7 +76,7 @@ export function GodownPage() {
   };
 
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Go Down</h1>
         <p className="text-gray-600">Manage godown operations</p>
@@ -84,26 +84,28 @@ export function GodownPage() {
 
       {/* Tabs */}
       <div className="mb-6 border-b">
-        <nav className="flex space-x-8">
+        <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
           <button
             onClick={() => setActiveTab('new')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-4 px-3 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'new'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            New Bills
+            <span className="hidden sm:inline">New Bills</span>
+            <span className="sm:hidden">New</span>
           </button>
           <button
             onClick={() => setActiveTab('preparation')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-4 px-3 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'preparation'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Preparation Queue
+            <span className="hidden sm:inline">Preparation Queue</span>
+            <span className="sm:hidden">Preparation</span>
           </button>
         </nav>
       </div>
@@ -129,42 +131,42 @@ export function GodownPage() {
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table className="w-full min-w-[700px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Delivery ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bill #
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Shop
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Destination
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Expected Delivery
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Preparation Staff
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
                 {(activeTab === 'new' || activeTab === 'preparation') && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 )}
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Bill #
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Shop
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Destination
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expected Delivery
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Preparation Staff
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredDeliveries.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={activeTab === 'new' || activeTab === 'preparation' ? 8 : 7} className="px-4 sm:px-6 py-12 text-center text-gray-500">
                     <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p>No deliveries found</p>
                   </td>
@@ -174,39 +176,16 @@ export function GodownPage() {
                   const shop = shops.find(s => s.shopId === delivery.shopId);
                   return (
                     <tr key={delivery.deliveryId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      <td className="px-4 sm:px-6 py-4 text-sm font-medium text-blue-600">
                         {delivery.deliveryId}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {delivery.billNumber}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {shop?.shopName || 'Unknown'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        <div>
-                          <div className="font-medium">{delivery.destinationName}</div>
-                          {delivery.boatName && (
-                            <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {delivery.preparationAssignedTo ? staff.find(s => s.staffId === delivery.preparationAssignedTo)?.fullName || 'Unknown' : '-'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {formatDateTime(delivery.createdAt)}
-                      </td>
                       {activeTab === 'new' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                        <td className="px-4 sm:px-6 py-4 text-sm">
                           <div className="space-y-2">
                             <select
                               value={selectedPreparationStaff[delivery.deliveryId] || ''}
                               onChange={(e) => setSelectedPreparationStaff(prev => ({ ...prev, [delivery.deliveryId]: e.target.value }))}
-                              className="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                               <option value="">Select Preparation Staff</option>
                               {staff.filter(s => s.department === 'preparation' && s.active).map(s => (
@@ -216,7 +195,7 @@ export function GodownPage() {
                             <button
                               onClick={() => handleConfirmReceived(delivery.deliveryId)}
                               disabled={!selectedPreparationStaff[delivery.deliveryId] || !canChangeStatus}
-                              className="px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                              className="w-full px-3 py-1 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
                               <Check className="w-4 h-4 mr-1" />
                               Confirm
@@ -225,12 +204,12 @@ export function GodownPage() {
                         </td>
                       )}
                       {activeTab === 'preparation' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="flex items-center space-x-2">
+                        <td className="px-4 sm:px-6 py-4 text-sm">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                             <select
                               value={selectedStatus[delivery.deliveryId] || delivery.currentStatus}
                               onChange={(e) => handleStatusChange(delivery.deliveryId, e.target.value as DeliveryStatus)}
-                              className="px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                              className="w-full px-3 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             >
                               <option value="preparation_in_progress">Preparation in Progress</option>
                               <option value="preparation_completed">Preparation Completed</option>
@@ -238,7 +217,7 @@ export function GodownPage() {
                             <button
                               onClick={() => handleSave(delivery.deliveryId)}
                               disabled={!selectedStatus[delivery.deliveryId] || selectedStatus[delivery.deliveryId] === delivery.currentStatus || !canChangeStatus}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                              className="w-full px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                             >
                               <Check className="w-4 h-4 mr-1" />
                               Save
@@ -246,6 +225,29 @@ export function GodownPage() {
                           </div>
                         </td>
                       )}
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">
+                        {delivery.billNumber}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">
+                        {shop?.shopName || 'Unknown'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">
+                        <div>
+                          <div className="font-medium">{delivery.destinationName}</div>
+                          {delivery.boatName && (
+                            <div className="text-xs text-gray-500">Boat: {delivery.boatName}</div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-500">
+                        {delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">
+                        {delivery.preparationAssignedTo ? staff.find(s => s.staffId === delivery.preparationAssignedTo)?.fullName || 'Unknown' : '-'}
+                      </td>
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-500">
+                        {formatDateTime(delivery.createdAt)}
+                      </td>
                     </tr>
                   );
                 })

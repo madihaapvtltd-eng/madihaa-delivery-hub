@@ -46,40 +46,42 @@ export function WholesalePage() {
   };
 
   return (
-    <div className="max-w-7xl">
+    <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Wholesale</h1>
         <p className="text-gray-600">Manage wholesale operations</p>
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 flex justify-between items-center border-b">
-        <nav className="flex space-x-8">
+      <div className="mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-center border-b gap-4">
+        <nav className="flex space-x-2 sm:space-x-8 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
           <button
             onClick={() => setActiveTab('new-entry')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-4 px-3 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'new-entry'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            New Entry
+            <span className="hidden sm:inline">New Entry</span>
+            <span className="sm:hidden">New</span>
           </button>
           <button
             onClick={() => setActiveTab('handover')}
-            className={`py-4 px-1 border-b-2 font-medium text-sm ${
+            className={`py-4 px-3 sm:px-1 border-b-2 font-medium text-sm whitespace-nowrap ${
               activeTab === 'handover'
                 ? 'border-blue-500 text-blue-600'
                 : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
             }`}
           >
-            Physical Bills Handover
+            <span className="hidden sm:inline">Physical Bills Handover</span>
+            <span className="sm:hidden">Handover</span>
           </button>
         </nav>
         {activeTab === 'new-entry' && canCreateNewDelivery && (
           <Link
             to="/new-delivery"
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 flex items-center self-start sm:self-auto"
           >
             <Plus className="w-4 h-4 mr-2" />
             Create New Entry
@@ -108,42 +110,42 @@ export function WholesalePage() {
 
       {/* Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table className="w-full min-w-[600px]">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Delivery ID
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Bill #
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Shop
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Destination
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Expected Delivery
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Created
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Attachment
-                </th>
                 {activeTab === 'handover' && (
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 )}
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Bill #
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Shop
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Destination
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Expected Delivery
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Created
+                </th>
+                <th className="px-4 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Attachment
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               {filteredDeliveries.length === 0 ? (
                 <tr>
-                  <td colSpan={activeTab === 'handover' ? 8 : 7} className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan={activeTab === 'handover' ? 8 : 7} className="px-4 sm:px-6 py-12 text-center text-gray-500">
                     <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
                     <p>No deliveries found</p>
                   </td>
@@ -153,16 +155,40 @@ export function WholesalePage() {
                   const shop = shops.find(s => s.shopId === delivery.shopId);
                   return (
                     <tr key={delivery.deliveryId} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
+                      <td className="px-4 sm:px-6 py-4 text-sm font-medium text-blue-600">
                         {delivery.deliveryId}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {activeTab === 'handover' && (
+                        <td className="px-4 sm:px-6 py-4 text-sm">
+                          <div className="space-y-2">
+                            <select
+                              value={selectedStaff[delivery.deliveryId] || ''}
+                              onChange={(e) => setSelectedStaff(prev => ({ ...prev, [delivery.deliveryId]: e.target.value }))}
+                              className="w-full px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            >
+                              <option value="">Select Staff</option>
+                              {staff.filter(s => s.department === 'wholesale' && s.active).map(s => (
+                                <option key={s.staffId} value={s.staffId}>{s.fullName}</option>
+                              ))}
+                            </select>
+                            <button
+                              onClick={() => handleHandover(delivery.deliveryId)}
+                              disabled={!selectedStaff[delivery.deliveryId] || !canChangeStatus || !canHandoverPhysicalBills}
+                              className="w-full px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+                            >
+                              <Check className="w-4 h-4 mr-1" />
+                              Handover
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">
                         {delivery.billNumber}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-600">
                         {shop?.shopName || 'Unknown'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-900">
                         <div>
                           <div className="font-medium">{delivery.destinationName}</div>
                           {delivery.boatName && (
@@ -170,13 +196,13 @@ export function WholesalePage() {
                           )}
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-500">
                         {delivery.expectedDeliveryAt ? formatDateTime(delivery.expectedDeliveryAt) : '-'}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-4 sm:px-6 py-4 text-sm text-gray-500">
                         {formatDateTime(delivery.createdAt)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      <td className="px-4 sm:px-6 py-4 text-sm">
                         {delivery.attachmentIds && delivery.attachmentIds.length > 0 ? (
                           <button
                             onClick={() => setViewingAttachment(delivery.attachmentIds![0])}
@@ -190,30 +216,6 @@ export function WholesalePage() {
                           <span className="text-gray-400">-</span>
                         )}
                       </td>
-                      {activeTab === 'handover' && (
-                        <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <div className="space-y-2">
-                            <select
-                              value={selectedStaff[delivery.deliveryId] || ''}
-                              onChange={(e) => setSelectedStaff(prev => ({ ...prev, [delivery.deliveryId]: e.target.value }))}
-                              className="px-2 py-1 border border-gray-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            >
-                              <option value="">Select Staff</option>
-                              {staff.filter(s => s.department === 'wholesale' && s.active).map(s => (
-                                <option key={s.staffId} value={s.staffId}>{s.fullName}</option>
-                              ))}
-                            </select>
-                            <button
-                              onClick={() => handleHandover(delivery.deliveryId)}
-                              disabled={!selectedStaff[delivery.deliveryId] || !canChangeStatus || !canHandoverPhysicalBills}
-                              className="px-3 py-1 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
-                            >
-                              <Check className="w-4 h-4 mr-1" />
-                              Handover
-                            </button>
-                          </div>
-                        </td>
-                      )}
                     </tr>
                   );
                 })
@@ -226,7 +228,7 @@ export function WholesalePage() {
       {/* Attachment Viewer Modal */}
       {viewingAttachment && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-lg font-semibold">Attachment</h2>
               <button

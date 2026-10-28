@@ -65,7 +65,12 @@ service cloud.firestore {
     match /attachments/{attachmentId} {
       allow read, write: if true;
     }
-    
+
+    // Delivery History - read/write for all (passcode-based auth)
+    match /deliveryHistory/{historyId} {
+      allow read, write: if true;
+    }
+
     // Audit Logs - read/write for all (passcode-based auth)
     match /auditLogs/{logId} {
       allow read, write: if true;

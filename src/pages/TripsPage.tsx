@@ -3,13 +3,18 @@ import { useData } from '../contexts/DataContext';
 import { useAuth } from '../contexts/AuthContext';
 import { hasPermission } from '../lib/permissions';
 import { formatDateTime } from '../lib/utils';
-import { Plus, Truck, User, MapPin, Clock, CheckCircle, AlertCircle, Send } from 'lucide-react';
+import { Plus, Truck, User, MapPin, Clock, CheckCircle, AlertCircle, Send, X, RotateCcw } from 'lucide-react';
+import type { ReturnReason } from '../types';
 
 export function TripsPage() {
   const { trips, deliveries, vehicles, drivers, shops, addTrip, updateTrip, updateDelivery } = useData();
   const { user } = useAuth();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedDeliveries, setSelectedDeliveries] = useState<string[]>([]);
+  const [showReturnModal, setShowReturnModal] = useState(false);
+  const [selectedDeliveryId, setSelectedDeliveryId] = useState<string | null>(null);
+  const [returnReason, setReturnReason] = useState<ReturnReason>('other');
+  const [returnReasonDetails, setReturnReasonDetails] = useState('');
   const [formData, setFormData] = useState({
     vehicleId: '',
     driverId: '',
@@ -120,6 +125,29 @@ export function TripsPage() {
     });
   };
 
+  const handleReturnDelivery = () => {
+    if (!selectedDeliveryId) return;
+
+    updateDelivery(selectedDeliveryId, {
+      currentStatus: 'returned',
+      returnReason,
+      returnReasonDetails: returnReasonDetails || undefined,
+      updatedAt: new Date(),
+      updatedBy: user!.uid,
+    });
+
+    // Reset modal state
+    setShowReturnModal(false);
+    setSelectedDeliveryId(null);
+    setReturnReason('other');
+    setReturnReasonDetails('');
+  };
+
+  const openReturnModal = (deliveryId: string) => {
+    setSelectedDeliveryId(deliveryId);
+    setShowReturnModal(true);
+  };
+
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
       planned: 'bg-blue-100 text-blue-800',
@@ -127,6 +155,7 @@ export function TripsPage() {
       dispatched: 'bg-indigo-100 text-indigo-800',
       completed: 'bg-green-100 text-green-800',
       cancelled: 'bg-red-100 text-red-800',
+      returned: 'bg-orange-100 text-orange-800',
     };
     return colors[status] || 'bg-gray-100 text-gray-800';
   };
@@ -384,6 +413,39 @@ export function TripsPage() {
                 </div>
               </div>
 
+              {/* Deliveries List */}
+              <div className="mt-4 space-y-2">
+                <h4 className="text-sm font-medium text-gray-700">Deliveries in this trip</h4>
+                {tripDeliveries.map(delivery => (
+                  <div key={delivery.deliveryId} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                    <div className="flex-1">
+                      <div className="text-sm font-medium">{delivery.billNumber}</div>
+                      <div className="text-xs text-gray-600">{delivery.destinationName}</div>
+                      <div className="text-xs text-gray-500 mt-1">
+                        Status: <span className={`px-2 py-0.5 text-xs rounded-full ${getStatusColor(delivery.currentStatus)}`}>
+                          {delivery.currentStatus}
+                        </span>
+                      </div>
+                      {delivery.returnReason && (
+                        <div className="text-xs text-orange-600 mt-1">
+                          Returned: {delivery.returnReason.replace('_', ' ')}
+                          {delivery.returnReasonDetails && ` - ${delivery.returnReasonDetails}`}
+                        </div>
+                      )}
+                    </div>
+                    {trip.status === 'dispatched' && delivery.currentStatus !== 'returned' && delivery.currentStatus !== 'delivered' && (
+                      <button
+                        onClick={() => openReturnModal(delivery.deliveryId)}
+                        className="ml-3 flex items-center px-3 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 text-sm"
+                      >
+                        <RotateCcw className="w-4 h-4 mr-1" />
+                        Return
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+
               {failedCount > 0 && (
                 <div className="mt-3 flex items-center text-sm text-red-600">
                   <AlertCircle className="w-4 h-4 mr-1" />
@@ -400,6 +462,74 @@ export function TripsPage() {
           </div>
         )}
       </div>
+
+      {/* Return Delivery Modal */}
+      {showReturnModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-gray-900">Return Delivery</h3>
+              <button
+                onClick={() => setShowReturnModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Reason for Return <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={returnReason}
+                  onChange={(e) => setReturnReason(e.target.value as ReturnReason)}
+                  required
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="boat_left">Boat Left</option>
+                  <option value="boat_full">Boat Full</option>
+                  <option value="boat_didnt_arrive">Boat Didn't Arrive</option>
+                  <option value="shop_closed">Shop Closed</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+
+              {returnReason === 'other' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Details <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    value={returnReasonDetails}
+                    onChange={(e) => setReturnReasonDetails(e.target.value)}
+                    rows={3}
+                    required
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    placeholder="Please provide details for the return reason"
+                  />
+                </div>
+              )}
+
+              <div className="flex justify-end space-x-3 pt-4">
+                <button
+                  onClick={() => setShowReturnModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReturnDelivery}
+                  className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700"
+                >
+                  Confirm Return
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

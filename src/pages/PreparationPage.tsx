@@ -112,15 +112,15 @@ export function PreparationPage() {
   const userShops = shops.filter(shop => user?.permittedShopIds.includes(shop.shopId));
 
   return (
-    <div>
+    <div className="max-w-7xl px-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Preparation Queue</h1>
         <p className="text-gray-600">Manage delivery preparation workflow</p>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow p-4 mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="bg-white rounded-lg shadow p-4 sm:p-6 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="flex items-center space-x-2">
             <Filter className="w-5 h-5 text-gray-400" />
             <select
@@ -166,11 +166,11 @@ export function PreparationPage() {
           return (
             <div
               key={delivery.deliveryId}
-              className="bg-white rounded-lg shadow p-4 border-2 border-transparent transition-all"
+              className="bg-white rounded-lg shadow p-3 sm:p-4 border-2 border-transparent transition-all"
             >
-              <div className="flex items-start justify-between mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-3 gap-2">
                 <div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 flex-wrap">
                     <span className="font-bold text-blue-600">{delivery.deliveryId}</span>
                     <span className={`px-2 py-1 text-xs font-medium rounded-full ${getPriorityColor(delivery.priority)}`}>
                       {delivery.priority}
@@ -199,7 +199,7 @@ export function PreparationPage() {
                 )}
               </div>
 
-              <div className="flex items-center justify-between text-sm text-gray-600 mb-3">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between text-sm text-gray-600 mb-3 gap-2">
                 <div className="flex items-center">
                   <Clock className="w-4 h-4 mr-1" />
                   <span>Waiting: {waitingTime}</span>
